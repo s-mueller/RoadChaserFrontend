@@ -1,0 +1,35 @@
+#!/bin/bash
+# Pre-commit hook: bumps the patch version in package.json and environment files before each commit.
+# To activate: git config core.hooksPath .githooks
+
+PACKAGE_JSON="package.json"
+ENV_FILE="src/environments/environment.ts"
+ENV_PROD_FILE="src/environments/environment.prod.ts"
+
+# Extract current version from package.json
+CURRENT_VERSION=$(grep -o '"version": "[^"]*"' "$PACKAGE_JSON" | head -1 | cut -d'"' -f4)
+
+if [ -z "$CURRENT_VERSION" ]; then
+  echo "ERROR: Could not extract version from $PACKAGE_JSON"
+  exit 1
+fi
+
+# Split into major.minor.patch
+IFS='.' read -r MAJOR MINOR PATCH <<< "$CURRENT_VERSION"
+
+# Increment patch
+PATCH=$((PATCH + 1))
+
+NEW_VERSION="${MAJOR}.${MINOR}.${PATCH}"
+
+# Update package.json
+sed -i '' "s/\"version\": \"$CURRENT_VERSION\"/\"version\": \"$NEW_VERSION\"/" "$PACKAGE_JSON"
+
+# Update environment files
+sed -i '' "s/appVersion: '$CURRENT_VERSION'/appVersion: '$NEW_VERSION'/" "$ENV_FILE"
+sed -i '' "s/appVersion: '$CURRENT_VERSION'/appVersion: '$NEW_VERSION'/" "$ENV_PROD_FILE"
+
+# Stage the updated files
+git add "$PACKAGE_JSON" "$ENV_FILE" "$ENV_PROD_FILE"
+
+echo "Version bumped: $CURRENT_VERSION -> $NEW_VERSION"
