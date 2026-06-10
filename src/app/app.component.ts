@@ -153,6 +153,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     this.http.get(this.service.apiUrl + "/data-result/NETWORK").subscribe((geojson: any) => {
+      if (!geojson) return;
       if (!this.loadedSources.includes('network-covered')) {
         this.map.addSource('network-covered', {
           type: 'geojson',
@@ -204,7 +205,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     this.http.get(this.service.apiUrl + "/data-result/WANDERWEG").subscribe((geojson: any) => {
-
+      if (!geojson) return;
       if (!this.loadedSources.includes('trails-covered')) {
         this.map.addSource('trails-covered', {
           type: 'geojson',
@@ -238,6 +239,7 @@ export class AppComponent implements AfterViewInit {
     this.removeExistingLayers();
 
     this.http.get(this.service.apiUrl + "/heatmap/NETWORK").subscribe((geojson: any) => {
+      if (!geojson) return;
       if (!this.loadedSources.includes('trails-heatmap')) {
         this.map.addSource('trails-heatmap', {
           type: 'geojson',
@@ -312,6 +314,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     this.http.get(this.service.apiUrl + "/data-result/SWITZERLAND").subscribe((geojson: any) => {
+      if (!geojson) return;
       if (!this.loadedSources.includes('switzerland-covered')) {
         this.map.addSource('switzerland-covered', {
           type: 'geojson',
@@ -364,6 +367,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     this.http.get(this.service.apiUrl + "/data-result/STGALLEN").subscribe((geojson: any) => {
+      if (!geojson) return;
       if (!this.loadedSources.includes('stgallen-covered')) {
         this.map.addSource('stgallen-covered', {
           type: 'geojson',
@@ -416,6 +420,7 @@ export class AppComponent implements AfterViewInit {
     });
 
     this.http.get(this.service.apiUrl + "/data-result/GRISONS").subscribe((geojson: any) => {
+      if (!geojson) return;
       if (!this.loadedSources.includes('grisons-covered')) {
         this.map.addSource('grisons-covered', {
           type: 'geojson',
