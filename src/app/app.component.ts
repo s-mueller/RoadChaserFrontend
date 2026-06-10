@@ -134,7 +134,7 @@ export class AppComponent implements AfterViewInit {
     if (!this.loadedSources.includes('network-liechtenstein')) {
       this.map.addSource('network-liechtenstein', {
         type: 'vector',
-        tiles: [this.service.apiUrl + '/tiles/NETWORK/{z}/{x}/{y}.pbf'],
+        tiles: [this.service.tileBaseUrl + '/tiles/NETWORK/{z}/{x}/{y}.pbf'],
         minzoom: 0,
         maxzoom: 14
       });
@@ -185,7 +185,7 @@ export class AppComponent implements AfterViewInit {
     if (!this.loadedSources.includes('trails-liechtenstein')) {
       this.map.addSource('trails-liechtenstein', {
         type: 'vector',
-        tiles: [this.service.apiUrl + '/tiles/WANDERWEG/{z}/{x}/{y}.pbf'],
+        tiles: [this.service.tileBaseUrl + '/tiles/WANDERWEG/{z}/{x}/{y}.pbf'],
         minzoom: 0,
         maxzoom: 14
       });
@@ -293,7 +293,7 @@ export class AppComponent implements AfterViewInit {
     if (!this.loadedSources.includes('trails-switzerland')) {
       this.map.addSource('trails-switzerland', {
         type: 'vector',
-        tiles: [this.service.apiUrl + '/tiles/SWITZERLAND/{z}/{x}/{y}.pbf'],
+        tiles: [this.service.tileBaseUrl + '/tiles/SWITZERLAND/{z}/{x}/{y}.pbf'],
         minzoom: 0,
         maxzoom: 14
       });
@@ -345,7 +345,7 @@ export class AppComponent implements AfterViewInit {
     if (!this.loadedSources.includes('trails-stgallen')) {
       this.map.addSource('trails-stgallen', {
         type: 'vector',
-        tiles: [this.service.apiUrl + '/tiles/STGALLEN/{z}/{x}/{y}.pbf'],
+        tiles: [this.service.tileBaseUrl + '/tiles/STGALLEN/{z}/{x}/{y}.pbf'],
         minzoom: 0,
         maxzoom: 14
       });
@@ -397,7 +397,7 @@ export class AppComponent implements AfterViewInit {
     if (!this.loadedSources.includes('trails-grisons')) {
       this.map.addSource('trails-grisons', {
         type: 'vector',
-        tiles: [this.service.apiUrl + '/tiles/GRISONS/{z}/{x}/{y}.pbf'],
+        tiles: [this.service.tileBaseUrl + '/tiles/GRISONS/{z}/{x}/{y}.pbf'],
         minzoom: 0,
         maxzoom: 14
       });

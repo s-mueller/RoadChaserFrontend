@@ -10,6 +10,7 @@ import {environment} from '../environments/environment';
 export class RoadChaserService {
 
   public apiUrl = environment.apiUrl;
+  public tileBaseUrl = window.location.origin + environment.apiUrl;
 
   constructor(private http: HttpClient) { }
 
