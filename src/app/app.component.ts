@@ -1,10 +1,11 @@
-import {AfterViewInit, Component} from '@angular/core';
+import {AfterViewInit, Component, OnInit} from '@angular/core';
 import {NgxMapLibreGLModule} from 'ngx-maplibre-gl';
 import maplibregl from 'maplibre-gl';
 import { HttpClient } from '@angular/common/http';
 import {RoadChaserService} from './roadchaser.service';
 import {DatePipe, DecimalPipe, NgIf} from '@angular/common';
 import {CoverageDto} from './model';
+import {environment} from '../environments/environment';
 
 @Component({
   selector: 'app-root',
@@ -13,13 +14,22 @@ import {CoverageDto} from './model';
   standalone: true,
   styleUrl: './app.component.css'
 })
-export class AppComponent implements AfterViewInit {
+export class AppComponent implements AfterViewInit, OnInit {
   map!: maplibregl.Map;
   coverage: CoverageDto;
   loadedSources: string[] = [];
   showCoverage = true;
+  frontendVersion = environment.appVersion;
+  backendVersion = '…';
 
   constructor(private service: RoadChaserService, private http: HttpClient) {}
+
+  ngOnInit(): void {
+    this.http.get<{ backendVersion: string }>(this.service.apiUrl + '/version').subscribe({
+      next: (res) => this.backendVersion = res.backendVersion,
+      error: () => this.backendVersion = 'n/a'
+    });
+  }
 
   ngAfterViewInit(): void {
     this.map = new maplibregl.Map({
