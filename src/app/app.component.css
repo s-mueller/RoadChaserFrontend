@@ -40,3 +40,17 @@
   font-size: 24px;
   cursor: pointer;
 }
+
+.version-badge {
+  position: absolute;
+  bottom: 8px;
+  right: 8px;
+  background-color: rgba(0, 0, 0, 0.5);
+  color: #fff;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 11px;
+  z-index: 10;
+  pointer-events: none;
+}
