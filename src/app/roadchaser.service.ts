@@ -8,8 +8,7 @@ import {CoverageDto} from './model';
 })
 export class RoadChaserService {
 
-  public apiUrl = 'http://localhost:8080/api';
-  //public apiUrl = 'https://2288b4f6437f.ngrok-free.app/api';
+  public apiUrl = '/api';
 
   constructor(private http: HttpClient) { }
 

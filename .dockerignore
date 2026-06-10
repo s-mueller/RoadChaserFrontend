@@ -1,0 +1,10 @@
+.git
+.gitignore
+.idea
+.vscode
+.angular
+.junie
+node_modules
+dist
+.DS_Store
+*.md
