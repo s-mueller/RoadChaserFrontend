@@ -369,9 +369,7 @@ export class AppComponent implements AfterViewInit, OnInit {
             ['linear'],
             ['get', 'intersection_count'],
             1, '#00ff00',     // Green
-            25, '#7fff00',    // Lime green
             50, '#ffff00',    // Yellow
-            75, '#ff7f00',    // Orange
             100, '#ff0000'    // Red
           ],
           'line-width': [
