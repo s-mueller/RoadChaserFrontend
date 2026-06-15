@@ -215,14 +215,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           ['zoom'],
           7, 0.3,
           10, 1,
-          14, 3
+          14, 2
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.3,
-          10, 0.6,
+          7, 0.4,
+          10, 0.7,
           14, 1
         ],
 
@@ -289,14 +289,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           ['zoom'],
           7, 0.3,
           10, 1,
-          14, 3
+          14, 2
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.3,
-          10, 0.6,
+          7, 0.4,
+          10, 0.7,
           14, 1
         ],
 
@@ -420,14 +420,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           ['zoom'],
           7, 0.3,
           10, 1,
-          14, 3
+          14, 2
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.3,
-          10, 0.6,
+          7, 0.4,
+          10, 0.7,
           14, 1
         ],
 
@@ -495,14 +495,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           ['zoom'],
           7, 0.3,
           10, 1,
-          14, 3
+          14, 2
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.3,
-          10, 0.6,
+          7, 0.4,
+          10, 0.7,
           14, 1
         ],
 
@@ -570,14 +570,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           ['zoom'],
           7, 0.3,
           10, 1,
-          14, 3
+          14, 2
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.3,
-          10, 0.6,
+          7, 0.4,
+          10, 0.7,
           14, 1
         ],
 
