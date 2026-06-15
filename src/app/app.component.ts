@@ -86,7 +86,8 @@ export class AppComponent implements AfterViewInit, OnInit {
       container: 'map',
       style: 'https://vectortiles.geo.admin.ch/styles/ch.swisstopo.lightbasemap.vt/style.json',
       center: [9.512414314597644, 47.165517853530986],
-      zoom: 11
+      zoom: 11,
+      maxZoom: 14
     });
 
     this.map.addControl(
@@ -209,6 +210,10 @@ export class AppComponent implements AfterViewInit, OnInit {
       paint: {
         'line-color': '#ff6600',
         'line-width': 3
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
       }
     });
     this.addedLayerIds.add('network-liechtenstein');
@@ -263,6 +268,10 @@ export class AppComponent implements AfterViewInit, OnInit {
       paint: {
         'line-color': '#ff6600',
         'line-width': 3
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
       }
     });
     this.addedLayerIds.add('trails-liechtenstein');
@@ -374,6 +383,10 @@ export class AppComponent implements AfterViewInit, OnInit {
       paint: {
         'line-color': '#ff6600',
         'line-width': 3
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
       }
     });
     this.addedLayerIds.add('trails-switzerland');
@@ -429,6 +442,10 @@ export class AppComponent implements AfterViewInit, OnInit {
       paint: {
         'line-color': '#ff6600',
         'line-width': 3
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
       }
     });
     this.addedLayerIds.add('trails-stgallen');
@@ -484,6 +501,10 @@ export class AppComponent implements AfterViewInit, OnInit {
       paint: {
         'line-color': '#ff6600',
         'line-width': 3
+      },
+      layout: {
+        'line-join': 'round',
+        'line-cap': 'round'
       }
     });
     this.addedLayerIds.add('trails-grisons');
