@@ -368,9 +368,11 @@ export class AppComponent implements AfterViewInit, OnInit {
             'interpolate',
             ['linear'],
             ['get', 'intersection_count'],
-            1, '#00ff00',     // Green
-            50, '#ffff00',    // Yellow
-            100, '#ff0000'    // Red
+            1, '#4a90d9',     // Blue (low frequency)
+            25, '#7c5bbf',    // Blue-purple
+            50, '#9b59b6',    // Purple (medium frequency)
+            75, '#d63384',    // Magenta-pink
+            100, '#e91e63'    // Hot pink (high frequency)
           ],
           'line-width': [
             'interpolate',
