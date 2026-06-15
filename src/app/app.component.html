@@ -19,16 +19,53 @@
     </div>
   </div>
 
+  <div class="loading-indicator" *ngIf="isLoading">
+    <div class="loading-spinner"></div>
+    <span class="loading-text">Laden…</span>
+  </div>
+
   <div *ngIf="coverage && showCoverage" class="overlay">
-    <button class="close-button" (click)="closeOverlay()">×</button>
-    <p>Länge total: {{coverage.totalTrailLength / 1000.0 | number: '1.2-2' }} km</p>
-    <p>Anzahl Wege: {{coverage.numberOfTrailsChecked}}</p>
-    <p>Geschafft: {{coverage.coverage | number: '1.2-2' }} %</p>
-    <p>Distanz: {{coverage.totalDistance / 1000.0 | number: '1.0-0' }} km</p>
-    <p>Höhenmeter: {{coverage.totalElevationGain | number: '1.0-0' }} m</p>
-    <p>Tracks überprüft: {{coverage.numberOfTracksChecked}}</p>
-    <p>Zuletzt berechnet: {{coverage.lastCalculated | date:'HH:mm \'am\' dd.MM.yyyy'}}</p>
-    <p>Zuletzt mit Strava synchronisiert: {{coverage.lastSyncedWithStrava | date:'HH:mm \'am\' dd.MM.yyyy'}}</p>
+    <button class="close-button" (click)="closeOverlay()">&times;</button>
+    <div class="overlay__body">
+      <div class="overlay__ring-wrap">
+        <svg class="overlay__ring" viewBox="0 0 80 80">
+          <circle class="overlay__ring-bg" cx="40" cy="40" r="34" />
+          <circle class="overlay__ring-fill" cx="40" cy="40" r="34"
+            [style.stroke-dashoffset]="213.6 - (213.6 * coverage.coverage / 100)" />
+        </svg>
+        <div class="overlay__ring-label">
+          <span class="overlay__ring-value">{{ coverage.coverage | number: '1.0-0' }}</span>
+          <span class="overlay__ring-unit">%</span>
+        </div>
+        <span class="overlay__ring-caption">Geschafft</span>
+      </div>
+      <div class="overlay__stats">
+        <div class="overlay__stat">
+          <span class="overlay__stat-value">{{ coverage.totalTrailLength / 1000.0 | number: '1.2-2' }} km</span>
+          <span class="overlay__stat-label">Länge total</span>
+        </div>
+        <div class="overlay__stat">
+          <span class="overlay__stat-value">{{ coverage.numberOfTrailsChecked }}</span>
+          <span class="overlay__stat-label">Anzahl Wege</span>
+        </div>
+        <div class="overlay__stat">
+          <span class="overlay__stat-value">{{ coverage.totalDistance / 1000.0 | number: '1.0-0' }} km</span>
+          <span class="overlay__stat-label">Distanz</span>
+        </div>
+        <div class="overlay__stat">
+          <span class="overlay__stat-value">{{ coverage.totalElevationGain | number: '1.0-0' }} m</span>
+          <span class="overlay__stat-label">Höhenmeter</span>
+        </div>
+        <div class="overlay__stat">
+          <span class="overlay__stat-value">{{ coverage.numberOfTracksChecked }}</span>
+          <span class="overlay__stat-label">Tracks überprüft</span>
+        </div>
+      </div>
+    </div>
+    <div class="overlay__footer">
+      <span>Zuletzt berechnet: {{ coverage.lastCalculated | date:'HH:mm \'am\' dd.MM.yyyy' }}</span>
+      <span>Zuletzt synchronisiert: {{ coverage.lastSyncedWithStrava | date:'HH:mm \'am\' dd.MM.yyyy' }}</span>
+    </div>
   </div>
   <div class="version-badge">
     FE {{frontendVersion}} | BE {{backendVersion}}

@@ -26,6 +26,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   loadedSources: string[] = [];
   addedLayerIds: Set<string> = new Set();
   showCoverage = true;
+  isLoading = false;
   frontendVersion = environment.appVersion;
   backendVersion = '…';
 
@@ -191,6 +192,7 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   private loadNetwork() {
     this.removeExistingLayers();
+    this.isLoading = true;
 
     if (!this.loadedSources.includes('network-liechtenstein')) {
       this.map.addSource('network-liechtenstein', {
@@ -235,6 +237,7 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.addedLayerIds.add('network-liechtenstein');
 
     this.http.get(this.service.apiUrl + "/data-result/NETWORK").subscribe((geojson: any) => {
+      this.isLoading = false;
       if (!geojson) return;
       if (!this.loadedSources.includes('network-covered')) {
         this.map.addSource('network-covered', {
@@ -260,11 +263,12 @@ export class AppComponent implements AfterViewInit, OnInit {
       this.coverage = response;
     });
 
-    this.map.setCenter([9.512414314597644, 47.165517853530986]);
+    this.map.flyTo({ center: [9.512414314597644, 47.165517853530986], zoom: 11, duration: 1200 });
   }
 
   private loadTrails() {
     this.removeExistingLayers();
+    this.isLoading = true;
 
     if (!this.loadedSources.includes('trails-liechtenstein')) {
       this.map.addSource('trails-liechtenstein', {
@@ -309,6 +313,7 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.addedLayerIds.add('trails-liechtenstein');
 
     this.http.get(this.service.apiUrl + "/data-result/WANDERWEG").subscribe((geojson: any) => {
+      this.isLoading = false;
       if (!geojson) return;
       if (!this.loadedSources.includes('trails-covered')) {
         this.map.addSource('trails-covered', {
@@ -336,14 +341,15 @@ export class AppComponent implements AfterViewInit, OnInit {
       this.coverage = response;
     });
 
-    this.map.setCenter([9.512414314597644, 47.165517853530986]);
-    this.map.setZoom(10.5);
+    this.map.flyTo({ center: [9.512414314597644, 47.165517853530986], zoom: 10.5, duration: 1200 });
   }
 
   private loadTrailsHeatmap() {
     this.removeExistingLayers();
+    this.isLoading = true;
 
     this.http.get(this.service.apiUrl + "/heatmap/NETWORK").subscribe((geojson: any) => {
+      this.isLoading = false;
       if (!geojson) return;
       if (!this.loadedSources.includes('trails-heatmap')) {
         this.map.addSource('trails-heatmap', {
@@ -389,13 +395,13 @@ export class AppComponent implements AfterViewInit, OnInit {
 
     })
 
-    this.map.setCenter([9.512414314597644, 47.165517853530986]);
-    this.map.setZoom(10.5);
+    this.map.flyTo({ center: [9.512414314597644, 47.165517853530986], zoom: 10.5, duration: 1200 });
   }
 
 
   private loadSwitzerland() {
     this.removeExistingLayers();
+    this.isLoading = true;
 
     if (!this.loadedSources.includes('trails-switzerland')) {
       this.map.addSource('trails-switzerland', {
@@ -440,6 +446,7 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.addedLayerIds.add('trails-switzerland');
 
     this.http.get(this.service.apiUrl + "/data-result/SWITZERLAND").subscribe((geojson: any) => {
+      this.isLoading = false;
       if (!geojson) return;
       if (!this.loadedSources.includes('switzerland-covered')) {
         this.map.addSource('switzerland-covered', {
@@ -465,12 +472,12 @@ export class AppComponent implements AfterViewInit, OnInit {
       this.coverage = response;
     });
 
-    this.map.setCenter([8.414885671372303, 46.76931689104032]);
-    this.map.setZoom(7.7);
+    this.map.flyTo({ center: [8.414885671372303, 46.76931689104032], zoom: 7.7, duration: 1200 });
   }
 
   private loadStGallen() {
     this.removeExistingLayers();
+    this.isLoading = true;
 
     if (!this.loadedSources.includes('trails-stgallen')) {
       this.map.addSource('trails-stgallen', {
@@ -515,6 +522,7 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.addedLayerIds.add('trails-stgallen');
 
     this.http.get(this.service.apiUrl + "/data-result/STGALLEN").subscribe((geojson: any) => {
+      this.isLoading = false;
       if (!geojson) return;
       if (!this.loadedSources.includes('stgallen-covered')) {
         this.map.addSource('stgallen-covered', {
@@ -540,12 +548,12 @@ export class AppComponent implements AfterViewInit, OnInit {
       this.coverage = response;
     });
 
-    this.map.setCenter([9.569950768098238, 47.24951226677899]);
-    this.map.setZoom(9);
+    this.map.flyTo({ center: [9.569950768098238, 47.24951226677899], zoom: 9, duration: 1200 });
   }
 
   private loadGrisons() {
     this.removeExistingLayers();
+    this.isLoading = true;
 
     if (!this.loadedSources.includes('trails-grisons')) {
       this.map.addSource('trails-grisons', {
@@ -590,6 +598,7 @@ export class AppComponent implements AfterViewInit, OnInit {
     this.addedLayerIds.add('trails-grisons');
 
     this.http.get(this.service.apiUrl + "/data-result/GRISONS").subscribe((geojson: any) => {
+      this.isLoading = false;
       if (!geojson) return;
       if (!this.loadedSources.includes('grisons-covered')) {
         this.map.addSource('grisons-covered', {
@@ -615,8 +624,7 @@ export class AppComponent implements AfterViewInit, OnInit {
       this.coverage = response;
     });
 
-    this.map.setCenter([9.569950768098238, 47.24951226677899]);
-    this.map.setZoom(9);
+    this.map.flyTo({ center: [9.569950768098238, 47.24951226677899], zoom: 9, duration: 1200 });
   }
 
   private removeExistingLayers() {
