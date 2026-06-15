@@ -42,19 +42,19 @@
       <div class="overlay__stats">
         <div class="overlay__stat">
           <span class="overlay__stat-value">{{ coverage.totalTrailLength / 1000.0 | number: '1.2-2' }} km</span>
-          <span class="overlay__stat-label">Länge total</span>
+          <span class="overlay__stat-label">Länge Wanderwege</span>
         </div>
         <div class="overlay__stat">
           <span class="overlay__stat-value">{{ coverage.numberOfTrailsChecked }}</span>
-          <span class="overlay__stat-label">Anzahl Wege</span>
+          <span class="overlay__stat-label">Anzahl Wanderwege</span>
         </div>
         <div class="overlay__stat">
           <span class="overlay__stat-value">{{ coverage.totalDistance / 1000.0 | number: '1.0-0' }} km</span>
-          <span class="overlay__stat-label">Distanz</span>
+          <span class="overlay__stat-label">zurückgelegte Distanz</span>
         </div>
         <div class="overlay__stat">
           <span class="overlay__stat-value">{{ coverage.totalElevationGain | number: '1.0-0' }} m</span>
-          <span class="overlay__stat-label">Höhenmeter</span>
+          <span class="overlay__stat-label">zurückgelegte Höhenmeter</span>
         </div>
         <div class="overlay__stat">
           <span class="overlay__stat-value">{{ coverage.numberOfTracksChecked }}</span>
@@ -65,9 +65,7 @@
     <div class="overlay__footer">
       <span>Zuletzt berechnet: {{ coverage.lastCalculated | date:'HH:mm \'am\' dd.MM.yyyy' }}</span>
       <span>Zuletzt synchronisiert: {{ coverage.lastSyncedWithStrava | date:'HH:mm \'am\' dd.MM.yyyy' }}</span>
+      <span>FE {{frontendVersion}} | BE {{backendVersion}}</span>
     </div>
-  </div>
-  <div class="version-badge">
-    FE {{frontendVersion}} | BE {{backendVersion}}
   </div>
 </div>

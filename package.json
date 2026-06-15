@@ -1,6 +1,6 @@
 {
   "name": "road-chaser-frontend",
-  "version": "0.0.18",
+  "version": "0.0.20",
   "scripts": {
     "ng": "ng",
     "start": "ng serve",
