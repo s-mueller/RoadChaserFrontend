@@ -18,6 +18,7 @@
     <p>Höhenmeter: {{coverage.totalElevationGain | number: '1.0-0' }} m</p>
     <p>Tracks überprüft: {{coverage.numberOfTracksChecked}}</p>
     <p>Zuletzt berechnet: {{coverage.lastCalculated | date:'HH:mm \'am\' dd.MM.yyyy'}}</p>
+    <p>Zuletzt mit Strava synchronisiert: {{coverage.lastSyncedWithStrava | date:'HH:mm \'am\' dd.MM.yyyy'}}</p>
   </div>
   <div class="version-badge">
     FE {{frontendVersion}} | BE {{backendVersion}}

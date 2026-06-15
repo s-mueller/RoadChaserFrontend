@@ -4,6 +4,7 @@ export class CoverageDto {
   numberOfTracksChecked: number;
   numberOfTrailsChecked: number;
   lastCalculated: string;
+  lastSyncedWithStrava: string;
   totalElevationGain: number;
   totalDistance: number;
 }
