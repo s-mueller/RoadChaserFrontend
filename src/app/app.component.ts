@@ -209,7 +209,22 @@ export class AppComponent implements AfterViewInit, OnInit {
       'source-layer': 'network_liechtenstein',
       paint: {
         'line-color': '#ff6600',
-        'line-width': 3
+        'line-width': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.5,
+          10, 1.5,
+          14, 3
+        ],
+        'line-opacity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.4,
+          10, 0.7,
+          14, 1
+        ]
       },
       layout: {
         'line-join': 'round',
@@ -267,7 +282,22 @@ export class AppComponent implements AfterViewInit, OnInit {
       'source-layer': 'trails_liechtenstein',
       paint: {
         'line-color': '#ff6600',
-        'line-width': 3
+        'line-width': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.5,
+          10, 1.5,
+          14, 3
+        ],
+        'line-opacity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.4,
+          10, 0.7,
+          14, 1
+        ]
       },
       layout: {
         'line-join': 'round',
@@ -382,7 +412,22 @@ export class AppComponent implements AfterViewInit, OnInit {
       'source-layer': 'trails_switzerland',
       paint: {
         'line-color': '#ff6600',
-        'line-width': 3
+        'line-width': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.5,
+          10, 1.5,
+          14, 3
+        ],
+        'line-opacity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.4,
+          10, 0.7,
+          14, 1
+        ]
       },
       layout: {
         'line-join': 'round',
@@ -441,7 +486,22 @@ export class AppComponent implements AfterViewInit, OnInit {
       'source-layer': 'trails_stgallen',
       paint: {
         'line-color': '#ff6600',
-        'line-width': 3
+        'line-width': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.5,
+          10, 1.5,
+          14, 3
+        ],
+        'line-opacity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.4,
+          10, 0.7,
+          14, 1
+        ]
       },
       layout: {
         'line-join': 'round',
@@ -500,7 +560,22 @@ export class AppComponent implements AfterViewInit, OnInit {
       'source-layer': 'trails_grisons',
       paint: {
         'line-color': '#ff6600',
-        'line-width': 3
+        'line-width': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.5,
+          10, 1.5,
+          14, 3
+        ],
+        'line-opacity': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 0.4,
+          10, 0.7,
+          14, 1
+        ]
       },
       layout: {
         'line-join': 'round',
