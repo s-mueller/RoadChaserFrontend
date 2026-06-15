@@ -213,26 +213,19 @@ export class AppComponent implements AfterViewInit, OnInit {
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.5,
-          10, 1.5,
+          7, 0.3,
+          10, 1,
           14, 3
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.4,
-          10, 0.7,
+          7, 0.3,
+          10, 0.6,
           14, 1
         ],
-        'line-blur': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          7, 1.5,
-          10, 0.5,
-          14, 0
-        ]
+
       },
       layout: {
         'line-join': 'round',
@@ -294,26 +287,19 @@ export class AppComponent implements AfterViewInit, OnInit {
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.5,
-          10, 1.5,
+          7, 0.3,
+          10, 1,
           14, 3
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.4,
-          10, 0.7,
+          7, 0.3,
+          10, 0.6,
           14, 1
         ],
-        'line-blur': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          7, 1.5,
-          10, 0.5,
-          14, 0
-        ]
+
       },
       layout: {
         'line-join': 'round',
@@ -432,26 +418,19 @@ export class AppComponent implements AfterViewInit, OnInit {
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.5,
-          10, 1.5,
+          7, 0.3,
+          10, 1,
           14, 3
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.4,
-          10, 0.7,
+          7, 0.3,
+          10, 0.6,
           14, 1
         ],
-        'line-blur': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          7, 1.5,
-          10, 0.5,
-          14, 0
-        ]
+
       },
       layout: {
         'line-join': 'round',
@@ -514,26 +493,19 @@ export class AppComponent implements AfterViewInit, OnInit {
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.5,
-          10, 1.5,
+          7, 0.3,
+          10, 1,
           14, 3
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.4,
-          10, 0.7,
+          7, 0.3,
+          10, 0.6,
           14, 1
         ],
-        'line-blur': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          7, 1.5,
-          10, 0.5,
-          14, 0
-        ]
+
       },
       layout: {
         'line-join': 'round',
@@ -596,26 +568,19 @@ export class AppComponent implements AfterViewInit, OnInit {
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.5,
-          10, 1.5,
+          7, 0.3,
+          10, 1,
           14, 3
         ],
         'line-opacity': [
           'interpolate',
           ['linear'],
           ['zoom'],
-          7, 0.4,
-          10, 0.7,
+          7, 0.3,
+          10, 0.6,
           14, 1
         ],
-        'line-blur': [
-          'interpolate',
-          ['linear'],
-          ['zoom'],
-          7, 1.5,
-          10, 0.5,
-          14, 0
-        ]
+
       },
       layout: {
         'line-join': 'round',
