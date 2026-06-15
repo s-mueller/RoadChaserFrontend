@@ -1,15 +1,21 @@
-import {AfterViewInit, Component, OnInit} from '@angular/core';
+import {AfterViewInit, Component, HostListener, OnInit} from '@angular/core';
 import {NgxMapLibreGLModule} from 'ngx-maplibre-gl';
 import maplibregl from 'maplibre-gl';
 import { HttpClient } from '@angular/common/http';
 import {RoadChaserService} from './roadchaser.service';
-import {DatePipe, DecimalPipe, NgIf} from '@angular/common';
+import {DatePipe, DecimalPipe, NgIf, NgFor} from '@angular/common';
 import {CoverageDto} from './model';
 import {environment} from '../environments/environment';
 
+interface RegionOption {
+  value: string;
+  label: string;
+  group: string;
+}
+
 @Component({
   selector: 'app-root',
-  imports: [NgxMapLibreGLModule, NgIf, DecimalPipe, DatePipe],
+  imports: [NgxMapLibreGLModule, NgIf, NgFor, DecimalPipe, DatePipe],
   templateUrl: './app.component.html',
   standalone: true,
   styleUrl: './app.component.css'
@@ -23,7 +29,50 @@ export class AppComponent implements AfterViewInit, OnInit {
   frontendVersion = environment.appVersion;
   backendVersion = '…';
 
+  regionGroups = [
+    { name: 'Liechtenstein', regions: [
+      { value: 'WANDERWEG', label: 'Wanderwege (Liechtenstein)' },
+      { value: 'NETWORK', label: 'Alle Strassen und Wege (Liechtenstein)' }
+    ]},
+    { name: 'Schweiz', regions: [
+      { value: 'SWITZERLAND', label: 'Schweiz (gesamt)' },
+      { value: 'STGALLEN', label: 'St. Gallen' },
+      { value: 'GRISONS', label: 'Graubünden' }
+    ]},
+    { name: 'Special', regions: [
+      { value: 'TRAIL_HEATMAP', label: 'Heatmap' }
+    ]}
+  ];
+  
+  selectedRegionValue = 'WANDERWEG';
+  showRegionDropdown = false;
+
   constructor(private service: RoadChaserService, private http: HttpClient) {}
+
+  get selectedRegionLabel(): string {
+    for (const group of this.regionGroups) {
+      const found = group.regions.find(r => r.value === this.selectedRegionValue);
+      if (found) return found.label;
+    }
+    return this.selectedRegionValue;
+  }
+
+  toggleRegionDropdown(event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.showRegionDropdown = !this.showRegionDropdown;
+  }
+
+  selectRegion(value: string, event?: MouseEvent): void {
+    if (event) event.stopPropagation();
+    this.selectedRegionValue = value;
+    this.showRegionDropdown = false;
+    this.load({ value: `'${value}'` } as any);
+  }
+
+  @HostListener('document:click')
+  onDocumentClick(): void {
+    this.showRegionDropdown = false;
+  }
 
   ngOnInit(): void {
     this.http.get<{ backendVersion: string }>(this.service.apiUrl + '/version').subscribe({

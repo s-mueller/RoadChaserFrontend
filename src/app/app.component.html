@@ -1,14 +1,24 @@
 <div class="map" id="map">
-  <div class="dropdown">
-    <select (change)="load($event.target)">
-      <option value="'TRAIL'">Liechtenstein</option>
-      <option value="'STGALLEN'">St. Gallen</option>
-      <option value="'GRISONS'">Graubünden</option>
-      <option value="'SWITZERLAND'">Schweiz</option>
-      <option value="'NETWORK'">Alle Strassen und Wege (Liechtenstein)</option>
-      <option value="'TRAIL_HEATMAP'">Heatmap</option>
-    </select>
+  <div class="region-selector" (click)="toggleRegionDropdown($event)">
+    <div class="region-selector__trigger" [class.open]="showRegionDropdown">
+      <span class="region-selector__label">{{ selectedRegionLabel }}</span>
+      <span class="region-selector__arrow" [class.rotated]="showRegionDropdown">▼</span>
+    </div>
+    <div class="region-selector__dropdown" *ngIf="showRegionDropdown">
+      <div class="region-selector__group" *ngFor="let group of regionGroups">
+        <div class="region-selector__group-label">{{ group.name }}</div>
+        <button 
+          class="region-selector__option" 
+          *ngFor="let region of group.regions"
+          [class.selected]="selectedRegionValue === region.value"
+          (click)="selectRegion(region.value, $event)"
+        >
+          {{ region.label }}
+        </button>
+      </div>
+    </div>
   </div>
+
   <div *ngIf="coverage && showCoverage" class="overlay">
     <button class="close-button" (click)="closeOverlay()">×</button>
     <p>Länge total: {{coverage.totalTrailLength / 1000.0 | number: '1.2-2' }} km</p>

@@ -7,16 +7,123 @@
   overflow: auto;
 }
 
-.dropdown {
+/* Region Selector Dropdown */
+.region-selector {
   position: absolute;
   top: 20px;
   left: 20px;
-  background-color: rgba(255, 255, 255, 0.9);
-  padding: 12px 16px;
-  border-radius: 8px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
-  font-family: sans-serif;
   z-index: 10;
+  font-family: system-ui, -apple-system, sans-serif;
+}
+
+.region-selector__trigger {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(8px);
+  padding: 10px 16px;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  cursor: pointer;
+  min-width: 220px;
+  transition: box-shadow 0.2s ease, background 0.2s ease;
+  user-select: none;
+}
+
+.region-selector__trigger:hover {
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
+  background: rgba(255, 255, 255, 1);
+}
+
+.region-selector__label {
+  flex: 1;
+  font-size: 14px;
+  font-weight: 500;
+  color: #1a1a2e;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.region-selector__arrow {
+  font-size: 10px;
+  color: #666;
+  transition: transform 0.2s ease;
+  flex-shrink: 0;
+}
+
+.region-selector__arrow.rotated {
+  transform: rotate(180deg);
+}
+
+.region-selector__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  right: 0;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(12px);
+  border-radius: 10px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.18);
+  overflow: hidden;
+  animation: dropdownIn 0.15s ease-out;
+  min-width: 250px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+@keyframes dropdownIn {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.region-selector__group {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.region-selector__group:last-child {
+  border-bottom: none;
+}
+
+.region-selector__group-label {
+  padding: 10px 16px 6px;
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: #888;
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.region-selector__option {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 16px;
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  color: #1a1a2e;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.region-selector__option:hover {
+  background: rgba(0, 90, 156, 0.08);
+  color: #005a9c;
+}
+
+.region-selector__option.selected {
+  background: rgba(0, 90, 156, 0.12);
+  color: #005a9c;
+  font-weight: 500;
 }
 
 .overlay {
