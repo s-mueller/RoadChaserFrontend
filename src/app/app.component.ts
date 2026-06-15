@@ -18,6 +18,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   map!: maplibregl.Map;
   coverage: CoverageDto;
   loadedSources: string[] = [];
+  addedLayerIds: Set<string> = new Set();
   showCoverage = true;
   frontendVersion = environment.appVersion;
   backendVersion = '…';
@@ -161,6 +162,7 @@ export class AppComponent implements AfterViewInit, OnInit {
         'line-width': 3
       }
     });
+    this.addedLayerIds.add('network-liechtenstein');
 
     this.http.get(this.service.apiUrl + "/data-result/NETWORK").subscribe((geojson: any) => {
       if (!geojson) return;
@@ -181,6 +183,7 @@ export class AppComponent implements AfterViewInit, OnInit {
           'line-width': 3
         }
       });
+      this.addedLayerIds.add('network-covered');
     })
 
     this.service.getCoverage("NETWORK").subscribe(response => {
@@ -213,6 +216,7 @@ export class AppComponent implements AfterViewInit, OnInit {
         'line-width': 3
       }
     });
+    this.addedLayerIds.add('trails-liechtenstein');
 
     this.http.get(this.service.apiUrl + "/data-result/WANDERWEG").subscribe((geojson: any) => {
       if (!geojson) return;
@@ -233,6 +237,7 @@ export class AppComponent implements AfterViewInit, OnInit {
           'line-width': 3
         }
       });
+      this.addedLayerIds.add('trails-covered');
     })
 
 
@@ -289,7 +294,7 @@ export class AppComponent implements AfterViewInit, OnInit {
           ]
         }
       });
-
+      this.addedLayerIds.add('lines-heatmap');
 
 
     })
@@ -322,6 +327,7 @@ export class AppComponent implements AfterViewInit, OnInit {
         'line-width': 3
       }
     });
+    this.addedLayerIds.add('trails-switzerland');
 
     this.http.get(this.service.apiUrl + "/data-result/SWITZERLAND").subscribe((geojson: any) => {
       if (!geojson) return;
@@ -342,6 +348,7 @@ export class AppComponent implements AfterViewInit, OnInit {
           'line-width': 3
         }
       });
+      this.addedLayerIds.add('switzerland-covered');
     })
 
     this.service.getCoverage("SWITZERLAND").subscribe(response => {
@@ -375,6 +382,7 @@ export class AppComponent implements AfterViewInit, OnInit {
         'line-width': 3
       }
     });
+    this.addedLayerIds.add('trails-stgallen');
 
     this.http.get(this.service.apiUrl + "/data-result/STGALLEN").subscribe((geojson: any) => {
       if (!geojson) return;
@@ -395,6 +403,7 @@ export class AppComponent implements AfterViewInit, OnInit {
           'line-width': 3
         }
       });
+      this.addedLayerIds.add('stgallen-covered');
     })
 
     this.service.getCoverage("STGALLEN").subscribe(response => {
@@ -428,6 +437,7 @@ export class AppComponent implements AfterViewInit, OnInit {
         'line-width': 3
       }
     });
+    this.addedLayerIds.add('trails-grisons');
 
     this.http.get(this.service.apiUrl + "/data-result/GRISONS").subscribe((geojson: any) => {
       if (!geojson) return;
@@ -448,6 +458,7 @@ export class AppComponent implements AfterViewInit, OnInit {
           'line-width': 3
         }
       });
+      this.addedLayerIds.add('grisons-covered');
     })
 
     this.service.getCoverage("GRISONS").subscribe(response => {
@@ -459,13 +470,12 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
   private removeExistingLayers() {
-    this.map.getLayersOrder().forEach(layer => {
-      if (layer === 'network-liechtenstein' || layer === 'trails-liechtenstein' || layer === 'trails-covered'
-        || layer === 'network-covered' || layer === 'trails-switzerland' || layer === 'switzerland-covered'
-        || layer === 'stgallen-covered' || layer === 'trails-stgallen' || layer === 'trails-grisons' || layer === 'grisons-covered') {
-        this.map.removeLayer(layer)
+    this.addedLayerIds.forEach(layerId => {
+      if (this.map.getLayer(layerId)) {
+        this.map.removeLayer(layerId);
       }
     });
+    this.addedLayerIds.clear();
   }
 
   load(target: any) {
