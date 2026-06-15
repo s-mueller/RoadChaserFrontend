@@ -263,7 +263,7 @@ export class AppComponent implements AfterViewInit, OnInit {
       this.coverage = response;
     });
 
-    this.map.flyTo({ center: [9.512414314597644, 47.165517853530986], zoom: 11, duration: 1200 });
+    this.map.flyTo({ center: [9.512414314597644, 47.165517853530986], zoom: 10.5, duration: 1200 });
   }
 
   private loadTrails() {
@@ -624,7 +624,7 @@ export class AppComponent implements AfterViewInit, OnInit {
       this.coverage = response;
     });
 
-    this.map.flyTo({ center: [9.569950768098238, 47.24951226677899], zoom: 9, duration: 1200 });
+    this.map.flyTo({ center: [9.5, 46.7], zoom: 7.5, duration: 1200 });
   }
 
   private removeExistingLayers() {
