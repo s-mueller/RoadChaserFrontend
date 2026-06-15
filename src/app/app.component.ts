@@ -368,11 +368,11 @@ export class AppComponent implements AfterViewInit, OnInit {
             'interpolate',
             ['linear'],
             ['get', 'intersection_count'],
-            1, '#ffa500',     // Light orange
-            25, '#ff8c00',    // Orange
-            50, '#ff6600',    // Orange (matches trail colors)
-            75, '#ff4500',    // Dark orange
-            100, '#b22222'    // Dark red
+            1, '#00ff00',     // Green
+            25, '#7fff00',    // Lime green
+            50, '#ffff00',    // Yellow
+            75, '#ff7f00',    // Orange
+            100, '#ff0000'    // Red
           ],
           'line-width': [
             'interpolate',
