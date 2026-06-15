@@ -224,6 +224,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           7, 0.4,
           10, 0.7,
           14, 1
+        ],
+        'line-blur': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 1.5,
+          10, 0.5,
+          14, 0
         ]
       },
       layout: {
@@ -297,6 +305,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           7, 0.4,
           10, 0.7,
           14, 1
+        ],
+        'line-blur': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 1.5,
+          10, 0.5,
+          14, 0
         ]
       },
       layout: {
@@ -427,6 +443,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           7, 0.4,
           10, 0.7,
           14, 1
+        ],
+        'line-blur': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 1.5,
+          10, 0.5,
+          14, 0
         ]
       },
       layout: {
@@ -501,6 +525,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           7, 0.4,
           10, 0.7,
           14, 1
+        ],
+        'line-blur': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 1.5,
+          10, 0.5,
+          14, 0
         ]
       },
       layout: {
@@ -575,6 +607,14 @@ export class AppComponent implements AfterViewInit, OnInit {
           7, 0.4,
           10, 0.7,
           14, 1
+        ],
+        'line-blur': [
+          'interpolate',
+          ['linear'],
+          ['zoom'],
+          7, 1.5,
+          10, 0.5,
+          14, 0
         ]
       },
       layout: {
