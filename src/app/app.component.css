@@ -227,16 +227,6 @@
   transition: stroke-dashoffset 0.6s ease;
 }
 
-.overlay__ring-label {
-  position: absolute;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  display: flex;
-  align-items: baseline;
-  gap: 1px;
-}
-
 .overlay__ring-wrap {
   position: relative;
 }
@@ -247,8 +237,10 @@
   left: 50%;
   transform: translate(-50%, -50%);
   display: flex;
-  align-items: baseline;
-  gap: 1px;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  line-height: 1.15;
 }
 
 .overlay__ring-value {
@@ -256,6 +248,13 @@
   font-weight: 700;
   color: #005a9c;
   line-height: 1;
+}
+
+.overlay__ring-total {
+  font-size: 11px;
+  font-weight: 600;
+  color: #005a9c;
+  opacity: 0.7;
 }
 
 .overlay__ring-unit {

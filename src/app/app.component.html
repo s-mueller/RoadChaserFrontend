@@ -36,18 +36,19 @@
               [style.stroke-dashoffset]="213.6 - (213.6 * summitCoverage.visitedSummits / summitCoverage.totalSummits)" />
           </svg>
           <div class="overlay__ring-label">
-            <span class="overlay__ring-value">{{ summitCoverage.visitedSummits }}/{{ summitCoverage.totalSummits }}</span>
+            <span class="overlay__ring-value">{{ summitCoverage.visitedSummits }}</span>
+            <span class="overlay__ring-total">/ {{ summitCoverage.totalSummits }}</span>
           </div>
           <span class="overlay__ring-caption">Bestiegen</span>
         </div>
         <div class="overlay__stats">
           <div class="overlay__stat">
             <span class="overlay__stat-value">{{ summitCoverage.totalVisits }}</span>
-            <span class="overlay__stat-label">Bestiegene Gipfel gesamt</span>
+            <span class="overlay__stat-label">Total Gipfelerfolge</span>
           </div>
           <div class="overlay__stat">
             <span class="overlay__stat-value">{{ summitCoverage.visitedSummits }}</span>
-            <span class="overlay__stat-label">Einmal bestiegen</span>
+            <span class="overlay__stat-label">Einzigartige Gipfelerfolge</span>
           </div>
         </div>
       </div>
