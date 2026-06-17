@@ -669,6 +669,7 @@ export class AppComponent implements AfterViewInit, OnInit {
   }
 
   private loadSummits(region: string, center: number[], zoom: number) {
+    this.showCoverage = true;
     this.removeExistingLayers();
     this.isLoading = true;
     this.summitCoverage = null;
