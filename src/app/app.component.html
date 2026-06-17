@@ -7,8 +7,8 @@
     <div class="region-selector__dropdown" *ngIf="showRegionDropdown">
       <div class="region-selector__group" *ngFor="let group of regionGroups">
         <div class="region-selector__group-label">{{ group.name }}</div>
-        <button 
-          class="region-selector__option" 
+        <button
+          class="region-selector__option"
           *ngFor="let region of group.regions"
           [class.selected]="selectedRegionValue === region.value"
           (click)="selectRegion(region.value, $event)"
@@ -65,7 +65,7 @@
     <div class="overlay__footer">
       <span>Zuletzt berechnet: {{ coverage.lastCalculated | date:'HH:mm \'am\' dd.MM.yyyy' }}</span>
       <span>Zuletzt synchronisiert: {{ coverage.lastSyncedWithStrava | date:'HH:mm \'am\' dd.MM.yyyy' }}</span>
-      <span>FE {{frontendVersion}} | BE {{backendVersion}}</span>
+      <span>Frontend version: {{frontendVersion}} | Backend version: {{backendVersion}}</span>
     </div>
   </div>
 </div>
