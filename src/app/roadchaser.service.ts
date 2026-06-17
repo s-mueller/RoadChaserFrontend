@@ -1,7 +1,7 @@
 import {Injectable} from '@angular/core';
 import {HttpClient} from '@angular/common/http';
 import {Observable} from 'rxjs';
-import {CoverageDto} from './model';
+import {CoverageDto, SummitCoverageDto} from './model';
 import {environment} from '../environments/environment';
 
 @Injectable({
@@ -18,5 +18,13 @@ export class RoadChaserService {
 
   getCoverage(roadType: string): Observable<CoverageDto> {
     return this.http.get<CoverageDto>(`${this.apiUrl}/data/${roadType}`);
+  }
+
+  getSummitCoverage(region: string): Observable<SummitCoverageDto> {
+    return this.http.get<SummitCoverageDto>(`${this.apiUrl}/summits/${region}`);
+  }
+
+  calculateSummitCoverage(region: string): Observable<SummitCoverageDto> {
+    return this.http.post<SummitCoverageDto>(`${this.apiUrl}/summits/recalculate/${region}`, {});
   }
 }

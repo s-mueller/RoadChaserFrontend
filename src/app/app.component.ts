@@ -4,7 +4,7 @@ import maplibregl from 'maplibre-gl';
 import { HttpClient } from '@angular/common/http';
 import {RoadChaserService} from './roadchaser.service';
 import {DatePipe, DecimalPipe, NgIf, NgFor} from '@angular/common';
-import {CoverageDto} from './model';
+import {CoverageDto, SummitCoverageDto} from './model';
 import {environment} from '../environments/environment';
 
 interface RegionOption {
@@ -23,6 +23,8 @@ interface RegionOption {
 export class AppComponent implements AfterViewInit, OnInit {
   map!: maplibregl.Map;
   coverage: CoverageDto;
+  summitCoverage: SummitCoverageDto | null = null;
+  isSummitRegion = false;
   loadedSources: string[] = [];
   addedLayerIds: Set<string> = new Set();
   showCoverage = true;
@@ -42,6 +44,12 @@ export class AppComponent implements AfterViewInit, OnInit {
     ]},
     { name: 'Special', regions: [
       { value: 'TRAIL_HEATMAP', label: 'Heatmap' }
+    ]},
+    { name: 'Gipfel', regions: [
+      { value: 'SUMMITS_LIECHTENSTEIN', label: 'Gipfel Liechtenstein' },
+      { value: 'SUMMITS_SWITZERLAND', label: 'Gipfel Schweiz (gesamt)' },
+      { value: 'SUMMITS_STGALLEN', label: 'Gipfel St. Gallen' },
+      { value: 'SUMMITS_GRISONS', label: 'Gipfel Graubünden' }
     ]}
   ];
   
@@ -67,6 +75,8 @@ export class AppComponent implements AfterViewInit, OnInit {
     if (event) event.stopPropagation();
     this.selectedRegionValue = value;
     this.showRegionDropdown = false;
+    this.isSummitRegion = value.startsWith('SUMMITS_');
+    this.showCoverage = true;
     this.load({ value: `'${value}'` } as any);
   }
 
@@ -146,17 +156,22 @@ export class AppComponent implements AfterViewInit, OnInit {
 
 
 
-      popup
-        .setLngLat(e.lngLat)
-        .setHTML(html)
-        .addTo(this.map);
     });
 
-
-
-
-
-
+    // Summit marker popup - shared popup with trails-covered
+    this.map.on('click', (e) => {
+      const summitLayers = Array.from(this.addedLayerIds).filter(id => id.includes('-circles'));
+      if (summitLayers.length === 0) return;
+      const features = this.map.queryRenderedFeatures(e.point, { layers: summitLayers });
+      if (features.length === 0) return;
+      const feature = features[0];
+      const name = feature.properties?.['name'];
+      const visits = feature.properties?.['visits'];
+      popup
+        .setLngLat(e.lngLat)
+        .setHTML(`<strong>${name}</strong><br>Besuche: ${visits}`)
+        .addTo(this.map);
+    });
 
     this.map.on('load', () => {
       this.loadTrails();
@@ -646,6 +661,109 @@ export class AppComponent implements AfterViewInit, OnInit {
       case '\'STGALLEN\'': this.loadStGallen(); break;
       case '\'GRISONS\'': this.loadGrisons(); break;
       case '\'TRAIL_HEATMAP\'': this.loadTrailsHeatmap(); break;
+      case '\'SUMMITS_LIECHTENSTEIN\'': this.loadSummits('SUMMITS_LIECHTENSTEIN', [9.512414314597644, 47.165517853530986], 10.5); break;
+      case '\'SUMMITS_SWITZERLAND\'': this.loadSummits('SUMMITS_SWITZERLAND', [8.414885671372303, 46.76931689104032], 7.7); break;
+      case '\'SUMMITS_STGALLEN\'': this.loadSummits('SUMMITS_STGALLEN', [9.569950768098238, 47.24951226677899], 9); break;
+      case '\'SUMMITS_GRISONS\'': this.loadSummits('SUMMITS_GRISONS', [9.5, 46.7], 9.5); break;
+    }
+  }
+
+  private loadSummits(region: string, center: number[], zoom: number) {
+    this.removeExistingLayers();
+    this.isLoading = true;
+    this.summitCoverage = null;
+
+    this.service.getSummitCoverage(region).subscribe({
+      next: (response) => {
+        if (response) {
+          this.renderSummitData(region, response);
+        } else {
+          this.isLoading = false;
+        }
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+
+    this.map.flyTo({ center: center as [number, number], zoom: zoom, duration: 1200 });
+  }
+
+  recalculateCurrentSummits() {
+    if (!this.selectedRegionValue.startsWith('SUMMITS_')) return;
+    this.isLoading = true;
+    this.calculateAndLoadSummits(this.selectedRegionValue);
+  }
+
+  private calculateAndLoadSummits(region: string) {
+    this.service.calculateSummitCoverage(region).subscribe({
+      next: (response) => {
+        if (response) {
+          this.renderSummitData(region, response);
+        } else {
+          this.isLoading = false;
+        }
+      },
+      error: () => {
+        this.isLoading = false;
+      }
+    });
+  }
+
+  private renderSummitData(region: string, response: SummitCoverageDto) {
+    this.summitCoverage = response;
+    this.isLoading = false;
+    this.showCoverage = true;
+
+    const features: any[] = [];
+    for (const s of response.summitDetails) {
+      features.push({
+        type: 'Feature',
+        properties: { name: s.name, visits: s.visits },
+        geometry: { type: 'Point', coordinates: [s.lon, s.lat] }
+      });
+    }
+
+    const geojson: any = {
+      type: 'FeatureCollection',
+      features: features
+    };
+
+    const sourceId = 'summits-' + region.toLowerCase();
+    const layerId = sourceId + '-circles';
+
+    if (!this.loadedSources.includes(sourceId)) {
+      this.map.addSource(sourceId, {
+        type: 'geojson',
+        data: geojson
+      });
+      this.loadedSources.push(sourceId);
+    } else {
+      (this.map.getSource(sourceId) as maplibregl.GeoJSONSource).setData(geojson);
+    }
+
+    if (!this.map.getLayer(layerId)) {
+      this.map.addLayer({
+        id: layerId,
+        type: 'circle',
+        source: sourceId,
+        paint: {
+          'circle-radius': [
+            'case',
+            ['==', ['get', 'visits'], 0], 5,
+            8
+          ],
+          'circle-color': [
+            'case',
+            ['==', ['get', 'visits'], 0], '#ff6600',
+            '#006600'
+          ],
+          'circle-opacity': 0.85,
+          'circle-stroke-width': 1.5,
+          'circle-stroke-color': '#ffffff'
+        }
+      });
+      this.addedLayerIds.add(layerId);
     }
   }
 

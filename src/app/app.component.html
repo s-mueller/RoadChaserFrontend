@@ -24,7 +24,45 @@
     <span class="loading-text">Laden…</span>
   </div>
 
-  <div *ngIf="coverage && showCoverage" class="overlay">
+  <div *ngIf="summitCoverage && isSummitRegion" class="overlay">
+    <button class="close-button" (click)="closeOverlay()">&times;</button>
+    <button class="refresh-button" (click)="recalculateCurrentSummits()" title="Neu berechnen">↻</button>
+    <div class="overlay__body">
+      <div class="overlay__ring-wrap">
+        <svg class="overlay__ring" viewBox="0 0 80 80">
+          <circle class="overlay__ring-bg" cx="40" cy="40" r="34" />
+          <circle class="overlay__ring-fill" cx="40" cy="40" r="34"
+            [style.stroke-dashoffset]="213.6 - (213.6 * summitCoverage.visitedSummits / summitCoverage.totalSummits)" />
+        </svg>
+        <div class="overlay__ring-label">
+          <span class="overlay__ring-value">{{ summitCoverage.visitedSummits }}/{{ summitCoverage.totalSummits }}</span>
+        </div>
+        <span class="overlay__ring-caption">Bestiegen</span>
+      </div>
+      <div class="overlay__stats">
+        <div class="overlay__stat">
+          <span class="overlay__stat-value">{{ summitCoverage.totalVisits }}</span>
+          <span class="overlay__stat-label">Bestiegene Gipfel gesamt</span>
+        </div>
+        <div class="overlay__stat">
+          <span class="overlay__stat-value">{{ summitCoverage.visitedSummits }}</span>
+          <span class="overlay__stat-label">Einmal bestiegen</span>
+        </div>
+      </div>
+    </div>
+    <div class="overlay__summit-list">
+      <div class="overlay__summit-item" *ngFor="let summit of summitCoverage.summitDetails">
+        <span class="overlay__summit-name">{{ summit.name }}</span>
+        <span class="overlay__summit-visits" [class.visited]="summit.visits > 0">{{ summit.visits }}x</span>
+      </div>
+    </div>
+    <div class="overlay__footer">
+      <span>Zuletzt berechnet: {{ summitCoverage.lastCalculated | date:'HH:mm \'am\' dd.MM.yyyy' }}</span>
+      <span>Frontend version: {{frontendVersion}} | Backend version: {{backendVersion}}</span>
+    </div>
+  </div>
+
+  <div *ngIf="coverage && showCoverage && !isSummitRegion" class="overlay">
     <button class="close-button" (click)="closeOverlay()">&times;</button>
     <div class="overlay__body">
       <div class="overlay__ring-wrap">
