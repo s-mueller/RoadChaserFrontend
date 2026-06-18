@@ -40,7 +40,7 @@ export class AppComponent implements AfterViewInit, OnInit {
       { value: 'TRAIL_HEATMAP', label: 'Heatmap' }
     ]},
     { name: 'Schweiz', regions: [
-      { value: 'SWITZERLAND', label: 'Schweiz (gesamt)' },
+      { value: 'SWITZERLAND', label: 'Wanderwege' },
       { value: 'SUMMITS_SWITZERLAND', label: 'Gipfel' }
     ]},
     { name: 'St. Gallen', regions: [
