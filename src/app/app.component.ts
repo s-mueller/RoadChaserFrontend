@@ -152,10 +152,10 @@ export class AppComponent implements AfterViewInit, OnInit {
   </div>
 `;
 
-
-
-
-
+      popup
+        .setLngLat(e.lngLat)
+        .setHTML(html)
+        .addTo(this.map);
     });
 
     // Summit marker popup - shared popup with trails-covered
