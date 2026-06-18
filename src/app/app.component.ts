@@ -34,22 +34,22 @@ export class AppComponent implements AfterViewInit, OnInit {
 
   regionGroups = [
     { name: 'Liechtenstein', regions: [
-      { value: 'WANDERWEG', label: 'Wanderwege (Liechtenstein)' },
-      { value: 'NETWORK', label: 'Alle Strassen und Wege (Liechtenstein)' }
+      { value: 'WANDERWEG', label: 'Wanderwege' },
+      { value: 'NETWORK', label: 'Alle Strassen und Wege' },
+      { value: 'SUMMITS_LIECHTENSTEIN', label: 'Gipfel' },
+      { value: 'TRAIL_HEATMAP', label: 'Heatmap' }
     ]},
     { name: 'Schweiz', regions: [
       { value: 'SWITZERLAND', label: 'Schweiz (gesamt)' },
-      { value: 'STGALLEN', label: 'St. Gallen' },
-      { value: 'GRISONS', label: 'Graubünden' }
+      { value: 'SUMMITS_SWITZERLAND', label: 'Gipfel' }
     ]},
-    { name: 'Special', regions: [
-      { value: 'TRAIL_HEATMAP', label: 'Heatmap' }
+    { name: 'St. Gallen', regions: [
+      { value: 'STGALLEN', label: 'Wanderwege' },
+      { value: 'SUMMITS_STGALLEN', label: 'Gipfel' }
     ]},
-    { name: 'Gipfel', regions: [
-      { value: 'SUMMITS_LIECHTENSTEIN', label: 'Gipfel Liechtenstein' },
-      { value: 'SUMMITS_SWITZERLAND', label: 'Gipfel Schweiz (gesamt)' },
-      { value: 'SUMMITS_STGALLEN', label: 'Gipfel St. Gallen' },
-      { value: 'SUMMITS_GRISONS', label: 'Gipfel Graubünden' }
+    { name: 'Graubünden', regions: [
+      { value: 'GRISONS', label: 'Wanderwege' },
+      { value: 'SUMMITS_GRISONS', label: 'Gipfel' }
     ]}
   ];
   
