@@ -60,6 +60,7 @@
       </div>
       <div class="overlay__footer">
         <span>Zuletzt berechnet: {{ summitCoverage.lastCalculated | date:'HH:mm \'am\' dd.MM.yyyy' }}</span>
+        <span *ngIf="summitCoverage.lastSyncedWithStrava">Zuletzt synchronisiert: {{ summitCoverage.lastSyncedWithStrava | date:'HH:mm \'am\' dd.MM.yyyy' }}</span>
         <span>Frontend version: {{frontendVersion}} | Backend version: {{backendVersion}}</span>
       </div>
     </div>

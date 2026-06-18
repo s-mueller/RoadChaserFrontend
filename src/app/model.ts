@@ -22,4 +22,5 @@ export class SummitCoverageDto {
   totalVisits: number;
   summitDetails: SummitDetail[];
   lastCalculated: string;
+  lastSyncedWithStrava: string;
 }
