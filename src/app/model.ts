@@ -14,6 +14,7 @@ export interface SummitDetail {
   visits: number;
   lat: number;
   lon: number;
+  uuid: string;
 }
 
 export class SummitCoverageDto {
