@@ -16,8 +16,20 @@ export class RoadChaserService {
 
   constructor(private http: HttpClient) { }
 
-  getCoverage(roadType: string): Observable<CoverageDto> {
-    return this.http.get<CoverageDto>(`${this.apiUrl}/data/${roadType}`);
+  getCoverage(region: string): Observable<CoverageDto> {
+    return this.http.get<CoverageDto>(`${this.apiUrl}/data/${region}`);
+  }
+
+  getCoveredTrailsGeoJson(region: string): Observable<object> {
+    return this.http.get(`${this.apiUrl}/data-result/${region}`);
+  }
+
+  getHeatmapGeoJson(region: string): Observable<object> {
+    return this.http.get(`${this.apiUrl}/heatmap/${region}`);
+  }
+
+  getBackendVersion(): Observable<{ backendVersion: string }> {
+    return this.http.get<{ backendVersion: string }>(`${this.apiUrl}/version`);
   }
 
   getSummitCoverage(region: string): Observable<SummitCoverageDto> {

@@ -3,21 +3,8 @@ import {HttpClientTestingModule, HttpTestingController} from '@angular/common/ht
 import {AppComponent} from './app.component';
 import {RoadChaserService} from './roadchaser.service';
 import {CoverageDto, SummitCoverageDto} from './model';
-import {Observable, of, throwError} from 'rxjs';
+import {of, throwError} from 'rxjs';
 import maplibregl from 'maplibre-gl';
-import {By} from '@angular/platform-browser';
-
-/**
- * Mock trail click event matching maplibregl's event shape.
- * The component reads e.features[0].properties.filenames,
- * parses it as JSON, sorts, and renders a popup.
- */
-function makeTrailClickEvent(rawFilenames: string) {
-  return {
-    features: [{properties: {filenames: rawFilenames}}],
-    lngLat: {lng: 9.5, lat: 47.1}
-  };
-}
 
 /** Mock summit click event. */
 const SUMMIT_CLICK_EVENT = {
@@ -48,6 +35,8 @@ const MOCK_SUMMIT_COVERAGE: SummitCoverageDto = {
   lastSyncedWithStrava: '2024-06-15T10:00:00Z'
 };
 
+const EMPTY_GEOJSON = {type: 'FeatureCollection', features: [] as any[]};
+
 describe('AppComponent', () => {
   let component: AppComponent;
   let fixture: ComponentFixture<AppComponent>;
@@ -56,15 +45,9 @@ describe('AppComponent', () => {
   let mockMap: any;
   let mockPopup: any;
   let eventHandlers: {[event: string]: Function[]};
-  let mockCanvas: {style: {cursor: string}};
 
-  /**
-   * Create a mock Map object that captures all event listeners
-   * and provides stubs for map operations.
-   */
   function createMockMap() {
     eventHandlers = {};
-    mockCanvas = {style: {cursor: ''}};
 
     const mockGeoJSONSource = jasmine.createSpyObj('GeoJSONSource', ['setData']);
 
@@ -77,14 +60,12 @@ describe('AppComponent', () => {
       'getContainer', 'getBounds', 'fitBounds', 'panTo', 'zoomTo'
     ]);
 
-    // Capture event listeners so tests can trigger them later
     map.on.and.callFake((event: string, ...args: any[]) => {
       if (!eventHandlers[event]) eventHandlers[event] = [];
-      // Last argument is always the callback
       eventHandlers[event].push(args[args.length - 1]);
     });
 
-    map.getCanvas.and.returnValue(mockCanvas);
+    map.getCanvas.and.returnValue({style: {cursor: ''}});
     map.getSource.and.returnValue(mockGeoJSONSource);
     map.getLayer.and.returnValue(null);
     map.queryRenderedFeatures.and.returnValue([]);
@@ -106,35 +87,34 @@ describe('AppComponent', () => {
 
   function setupServiceMock() {
     mockService = jasmine.createSpyObj('RoadChaserService', [
-      'getCoverage', 'getSummitCoverage', 'calculateSummitCoverage'
+      'getCoverage', 'getSummitCoverage', 'calculateSummitCoverage',
+      'getCoveredTrailsGeoJson', 'getHeatmapGeoJson', 'getBackendVersion'
     ]);
     mockService.apiUrl = '/api';
     mockService.tileBaseUrl = 'http://localhost/api';
     mockService.getCoverage.and.returnValue(of(MOCK_COVERAGE));
     mockService.getSummitCoverage.and.returnValue(of(MOCK_SUMMIT_COVERAGE));
     mockService.calculateSummitCoverage.and.returnValue(of(MOCK_SUMMIT_COVERAGE));
+    mockService.getCoveredTrailsGeoJson.and.returnValue(of(EMPTY_GEOJSON));
+    mockService.getHeatmapGeoJson.and.returnValue(of(EMPTY_GEOJSON));
+    mockService.getBackendVersion.and.returnValue(of({backendVersion: '1.0.0'}));
   }
 
-  /** Create the component but DON'T call detectChanges (no lifecycle hooks). */
   function createComponentOnly() {
     fixture = TestBed.createComponent(AppComponent);
     component = fixture.componentInstance;
   }
 
-  /** Create + detectChanges so ngOnInit and ngAfterViewInit fire. */
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function createAndInit(flushVersion: string = '1.0.0') {
+    mockService.getBackendVersion.and.returnValue(of({backendVersion: flushVersion}));
     createComponentOnly();
     fixture.detectChanges();
-    const req = httpMock.expectOne('/api/version');
-    req.flush({backendVersion: flushVersion});
   }
 
   beforeEach(async () => {
     mockMap = createMockMap();
     mockPopup = createMockPopup();
 
-    // Spy on maplibregl constructors BEFORE component creation
     spyOn(maplibregl, 'Map').and.returnValue(mockMap as any);
     spyOn(maplibregl, 'Popup').and.returnValue(mockPopup as any);
     spyOn(maplibregl, 'GeolocateControl').and.returnValue({} as any);
@@ -183,10 +163,9 @@ describe('AppComponent', () => {
     });
 
     it('should handle backend version fetch error gracefully', () => {
+      mockService.getBackendVersion.and.returnValue(throwError(() => new Error('Network error')));
       createComponentOnly();
       fixture.detectChanges();
-      const req = httpMock.expectOne('/api/version');
-      req.flush('Network error', {status: 0, statusText: 'Unknown Error'});
       expect(component.backendVersion).toBe('n/a');
     });
   });
@@ -200,7 +179,6 @@ describe('AppComponent', () => {
       expect(maplibregl.Map).not.toHaveBeenCalled();
 
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       expect(maplibregl.Map).toHaveBeenCalledTimes(1);
       const mapArgs = (maplibregl.Map as unknown as jasmine.Spy).calls.mostRecent().args[0];
@@ -217,28 +195,21 @@ describe('AppComponent', () => {
 
     it('should register click and load event handlers', () => {
       createAndInit();
-      expect(mockMap.on).toHaveBeenCalledWith('click', 'trails-covered', jasmine.any(Function));
       expect(mockMap.on).toHaveBeenCalledWith('click', jasmine.any(Function));
       expect(mockMap.on).toHaveBeenCalledWith('load', jasmine.any(Function));
     });
 
     it('should trigger loadTrails on map load event', () => {
       createAndInit();
-      // The map 'load' handler was registered; trigger it
       const loadHandler = eventHandlers['load'][0];
       loadHandler();
 
-      // loadTrails should be called which adds sources, layers, and fetches coverage
       expect(mockMap.addSource).toHaveBeenCalledWith('trails-liechtenstein', jasmine.objectContaining({
         type: 'vector',
         minzoom: 0,
         maxzoom: 14
       }));
-
-      // The component's http.get should fire for data-result/WANDERWEG
-      const dataReq = httpMock.expectOne('/api/data-result/WANDERWEG');
-      dataReq.flush({type: 'FeatureCollection', features: []});
-
+      expect(mockService.getCoveredTrailsGeoJson).toHaveBeenCalledWith('WANDERWEG');
       expect(mockService.getCoverage).toHaveBeenCalledWith('WANDERWEG');
       expect(mockMap.flyTo).toHaveBeenCalled();
     });
@@ -345,66 +316,60 @@ describe('AppComponent', () => {
     });
 
     it('should route to loadTrails for WANDERWEG', () => {
-      component.load({value: "'WANDERWEG'"});
-      httpMock.expectOne('/api/data-result/WANDERWEG').flush({type: 'FeatureCollection', features: []});
+      component.load('WANDERWEG');
       expect(mockMap.addSource).toHaveBeenCalledWith('trails-liechtenstein', jasmine.any(Object));
+      expect(mockService.getCoveredTrailsGeoJson).toHaveBeenCalledWith('WANDERWEG');
       expect(mockService.getCoverage).toHaveBeenCalledWith('WANDERWEG');
     });
 
     it('should route to loadNetwork for NETWORK', () => {
-      component.load({value: "'NETWORK'"});
-      httpMock.expectOne('/api/data-result/NETWORK').flush({type: 'FeatureCollection', features: []});
+      component.load('NETWORK');
       expect(mockMap.addSource).toHaveBeenCalledWith('network-liechtenstein', jasmine.any(Object));
+      expect(mockService.getCoveredTrailsGeoJson).toHaveBeenCalledWith('NETWORK');
       expect(mockService.getCoverage).toHaveBeenCalledWith('NETWORK');
     });
 
     it('should route to loadSwitzerland for SWITZERLAND', () => {
-      component.load({value: "'SWITZERLAND'"});
-      httpMock.expectOne('/api/data-result/SWITZERLAND').flush({type: 'FeatureCollection', features: []});
+      component.load('SWITZERLAND');
       expect(mockMap.addSource).toHaveBeenCalledWith('trails-switzerland', jasmine.any(Object));
+      expect(mockService.getCoveredTrailsGeoJson).toHaveBeenCalledWith('SWITZERLAND');
       expect(mockService.getCoverage).toHaveBeenCalledWith('SWITZERLAND');
     });
 
     it('should route to loadStGallen for STGALLEN', () => {
-      component.load({value: "'STGALLEN'"});
-      httpMock.expectOne('/api/data-result/STGALLEN').flush({type: 'FeatureCollection', features: []});
+      component.load('STGALLEN');
       expect(mockMap.addSource).toHaveBeenCalledWith('trails-stgallen', jasmine.any(Object));
+      expect(mockService.getCoveredTrailsGeoJson).toHaveBeenCalledWith('STGALLEN');
       expect(mockService.getCoverage).toHaveBeenCalledWith('STGALLEN');
     });
 
     it('should route to loadGrisons for GRISONS', () => {
-      component.load({value: "'GRISONS'"});
-      httpMock.expectOne('/api/data-result/GRISONS').flush({type: 'FeatureCollection', features: []});
+      component.load('GRISONS');
       expect(mockMap.addSource).toHaveBeenCalledWith('trails-grisons', jasmine.any(Object));
+      expect(mockService.getCoveredTrailsGeoJson).toHaveBeenCalledWith('GRISONS');
       expect(mockService.getCoverage).toHaveBeenCalledWith('GRISONS');
     });
 
     it('should route to loadTrailsHeatmap for TRAIL_HEATMAP', () => {
-      component.load({value: "'TRAIL_HEATMAP'"});
-
-      // Trigger the pending HTTP request from the heatmap loader
-      const dataReq = httpMock.expectOne('/api/heatmap/NETWORK');
-      dataReq.flush({type: 'FeatureCollection', features: []});
-
+      component.load('TRAIL_HEATMAP');
+      expect(mockService.getHeatmapGeoJson).toHaveBeenCalledWith('NETWORK');
       expect(mockMap.addSource).toHaveBeenCalledWith('trails-heatmap', jasmine.any(Object));
     });
 
     it('should route to loadSummits for SUMMITS_LIECHTENSTEIN', () => {
-      component.load({value: "'SUMMITS_LIECHTENSTEIN'"});
+      component.load('SUMMITS_LIECHTENSTEIN');
       expect(mockService.getSummitCoverage).toHaveBeenCalledWith('SUMMITS_LIECHTENSTEIN');
       expect(mockMap.flyTo).toHaveBeenCalled();
-      // isLoading is reset to false synchronously because mocked service returns of()
-      // isSummitRegion is set by selectRegion(), not by load()
       expect(component.summitCoverage).toEqual(MOCK_SUMMIT_COVERAGE);
     });
 
     it('should route to loadSummits for SUMMITS_SWITZERLAND', () => {
-      component.load({value: "'SUMMITS_SWITZERLAND'"});
+      component.load('SUMMITS_SWITZERLAND');
       expect(mockService.getSummitCoverage).toHaveBeenCalledWith('SUMMITS_SWITZERLAND');
     });
 
     it('should route to loadSummits for SUMMITS_GRISONS', () => {
-      component.load({value: "'SUMMITS_GRISONS'"});
+      component.load('SUMMITS_GRISONS');
       expect(mockService.getSummitCoverage).toHaveBeenCalledWith('SUMMITS_GRISONS');
     });
   });
@@ -422,58 +387,23 @@ describe('AppComponent', () => {
   });
 
   // -----------------------------------------------------------------------
-  //  recalculateCurrentSummits
-  // -----------------------------------------------------------------------
-  describe('recalculateCurrentSummits', () => {
-    it('should do nothing when not a summit region', () => {
-      createComponentOnly();
-      component.selectedRegionValue = 'WANDERWEG';
-      component.recalculateCurrentSummits();
-      expect(mockService.calculateSummitCoverage).not.toHaveBeenCalled();
-    });
-
-    it('should call calculateSummitCoverage for summit regions', () => {
-      createAndInit();
-      component.selectedRegionValue = 'SUMMITS_LIECHTENSTEIN';
-      component.recalculateCurrentSummits();
-      expect(mockService.calculateSummitCoverage).toHaveBeenCalledWith('SUMMITS_LIECHTENSTEIN');
-    });
-
-    it('should start loading when recalculating', () => {
-      // Use a non-resolving observable so isLoading stays true
-      mockService.calculateSummitCoverage.and.returnValue(new Observable(() => {}));
-      createAndInit();
-      component.selectedRegionValue = 'SUMMITS_LIECHTENSTEIN';
-      component.recalculateCurrentSummits();
-      expect(component.isLoading).toBeTrue();
-      expect(mockService.calculateSummitCoverage).toHaveBeenCalledWith('SUMMITS_LIECHTENSTEIN');
-    });
-  });
-
-  // -----------------------------------------------------------------------
   //  Summit calculation (loadSummits)
   // -----------------------------------------------------------------------
   describe('loadSummits', () => {
     it('should render summit data on successful response', () => {
       createAndInit();
-      component.load({value: "'SUMMITS_LIECHTENSTEIN'"});
+      component.load('SUMMITS_LIECHTENSTEIN');
 
-      // isLoading is already false because mocked service returns of() synchronously
       expect(mockService.getSummitCoverage).toHaveBeenCalledWith('SUMMITS_LIECHTENSTEIN');
-
-      // Verify summit data is rendered
       expect(component.isLoading).toBeFalse();
       expect(component.summitCoverage).toEqual(MOCK_SUMMIT_COVERAGE);
       expect(component.showCoverage).toBeTrue();
 
-      // Map should have a new GeoJSON source for summits
-      // sourceId = 'summits-' + region.toLowerCase() = 'summits-summits_liechtenstein'
       expect(mockMap.addSource).toHaveBeenCalledWith(
         'summits-summits_liechtenstein',
         jasmine.objectContaining({type: 'geojson'})
       );
 
-      // And a circle layer for markers
       const layerCalls = mockMap.addLayer.calls.all();
       const circleLayer = layerCalls.find((c: any) => c.args[0].type === 'circle');
       expect(circleLayer).toBeDefined();
@@ -484,7 +414,7 @@ describe('AppComponent', () => {
       mockService.getSummitCoverage.and.returnValue(of(null as any));
       createAndInit();
 
-      component.load({value: "'SUMMITS_LIECHTENSTEIN'"});
+      component.load('SUMMITS_LIECHTENSTEIN');
 
       expect(component.isLoading).toBeFalse();
       expect(component.summitCoverage).toBeNull();
@@ -494,67 +424,74 @@ describe('AppComponent', () => {
       mockService.getSummitCoverage.and.returnValue(throwError(() => new Error('API error')));
       createAndInit();
 
-      component.load({value: "'SUMMITS_LIECHTENSTEIN'"});
+      component.load('SUMMITS_LIECHTENSTEIN');
       expect(component.isLoading).toBeFalse();
     });
   });
 
   // -----------------------------------------------------------------------
-  //  Map click – trail coverage popup
+  //  Map click – combined handler
   // -----------------------------------------------------------------------
-  describe('map click on trails-covered layer', () => {
+  describe('map click on covered trail layer', () => {
+    let clickHandler: Function;
+
+    /** Set up queryRenderedFeatures to return a covered-segment feature. */
+    function setupCoveredFeature(rawFilenames: string) {
+      mockMap.queryRenderedFeatures.and.callFake((_point: any, options: any) => {
+        const layers: string[] = options?.layers ?? [];
+        return layers.some((l: string) => l.endsWith('-covered'))
+          ? [{properties: {filenames: rawFilenames}}]
+          : [];
+      });
+    }
+
     beforeEach(() => {
       createAndInit();
-      // Trigger load event so loadTrails() adds the 'trails-covered' layer
       const loadHandler = eventHandlers['load'][0];
       loadHandler();
-      httpMock.expectOne('/api/data-result/WANDERWEG').flush({
-        type: 'FeatureCollection', features: []
-      });
+      // The combined click handler is at index 0
+      clickHandler = eventHandlers['click'][0];
     });
 
     it('should show popup with sorted filenames', () => {
-      const clickHandler = eventHandlers['click'][0];
-      clickHandler(makeTrailClickEvent('["track/3","track/1","track/2"]'));
+      setupCoveredFeature('["track/3","track/1","track/2"]');
+      clickHandler({point: {x: 100, y: 200}, lngLat: {lng: 9.5, lat: 47.1}});
 
       expect(mockPopup.setLngLat).toHaveBeenCalledWith({lng: 9.5, lat: 47.1});
       expect(mockPopup.addTo).toHaveBeenCalledWith(mockMap);
 
-      // HTML should contain links sorted numerically
-      const setHTMLCall = mockPopup.setHTML.calls.mostRecent();
-      const html: string = setHTMLCall.args[0];
+      const html: string = mockPopup.setHTML.calls.mostRecent().args[0];
       expect(html).toContain('Activity 1');
       expect(html).toContain('Activity 2');
       expect(html).toContain('Activity 3');
-      // Check order (Activity 1 before Activity 2 before Activity 3)
       expect(html.indexOf('Activity 1')).toBeLessThan(html.indexOf('Activity 2'));
       expect(html.indexOf('Activity 2')).toBeLessThan(html.indexOf('Activity 3'));
     });
 
     it('should handle single filename', () => {
-      const clickHandler = eventHandlers['click'][0];
-      clickHandler(makeTrailClickEvent('["track/42"]'));
+      setupCoveredFeature('["track/42"]');
+      clickHandler({point: {x: 100, y: 200}, lngLat: {lng: 9.5, lat: 47.1}});
 
       const html: string = mockPopup.setHTML.calls.mostRecent().args[0];
       expect(html).toContain('Activity 42');
       expect(html).toContain('1 track');
     });
 
-    it('should do nothing if no features in click event', () => {
-      const clickHandler = eventHandlers['click'][0];
-      clickHandler({lngLat: {lng: 9.5, lat: 47.1}});
+    it('should do nothing if no features at click point', () => {
+      // Default queryRenderedFeatures returns []
+      clickHandler({point: {x: 100, y: 200}, lngLat: {lng: 9.5, lat: 47.1}});
       expect(mockPopup.setHTML).not.toHaveBeenCalled();
     });
 
     it('should handle JSON parse error in filenames', () => {
-      const clickHandler = eventHandlers['click'][0];
-      clickHandler(makeTrailClickEvent('{invalid json}'));
+      setupCoveredFeature('{invalid json}');
+      clickHandler({point: {x: 100, y: 200}, lngLat: {lng: 9.5, lat: 47.1}});
       expect(mockPopup.setHTML).not.toHaveBeenCalled();
     });
 
     it('should handle non-array filenames', () => {
-      const clickHandler = eventHandlers['click'][0];
-      clickHandler(makeTrailClickEvent('"string_not_array"'));
+      setupCoveredFeature('"string_not_array"');
+      clickHandler({point: {x: 100, y: 200}, lngLat: {lng: 9.5, lat: 47.1}});
       expect(mockPopup.setHTML).not.toHaveBeenCalled();
     });
   });
@@ -563,20 +500,24 @@ describe('AppComponent', () => {
   //  Map click – summit popup
   // -----------------------------------------------------------------------
   describe('map click on summit circles', () => {
+    let clickHandler: Function;
+
     beforeEach(() => {
       createAndInit();
-      // Load summit data so '-circles' layers are present
-      component.load({value: "'SUMMITS_LIECHTENSTEIN'"});
+      component.load('SUMMITS_LIECHTENSTEIN');
       expect(component.addedLayerIds.size).toBeGreaterThan(0);
+      clickHandler = eventHandlers['click'][0];
     });
 
     it('should show summit popup when clicking on a summit feature', () => {
-      mockMap.queryRenderedFeatures.and.returnValue([{
-        properties: {name: 'Falknis', visits: 3}
-      }]);
+      mockMap.queryRenderedFeatures.and.callFake((_point: any, options: any) => {
+        const layers: string[] = options?.layers ?? [];
+        return layers.some((l: string) => l.endsWith('-circles'))
+          ? [{properties: {name: 'Falknis', visits: 3}}]
+          : [];
+      });
 
-      const summitHandler = eventHandlers['click'][1];
-      summitHandler(SUMMIT_CLICK_EVENT);
+      clickHandler(SUMMIT_CLICK_EVENT);
 
       expect(mockPopup.setHTML).toHaveBeenCalledWith('<strong>Falknis</strong><br>Besuche: 3');
       expect(mockPopup.setLngLat).toHaveBeenCalledWith({lng: 9.5, lat: 47.1});
@@ -584,21 +525,14 @@ describe('AppComponent', () => {
     });
 
     it('should do nothing when no circle layers exist', () => {
-      // Clear all added layer IDs
       component.addedLayerIds.clear();
-
-      const summitHandler = eventHandlers['click'][1];
-      summitHandler(SUMMIT_CLICK_EVENT);
-
+      clickHandler(SUMMIT_CLICK_EVENT);
       expect(mockPopup.setHTML).not.toHaveBeenCalled();
     });
 
     it('should do nothing when queryRenderedFeatures returns empty', () => {
-      mockMap.queryRenderedFeatures.and.returnValue([]);
-
-      const summitHandler = eventHandlers['click'][1];
-      summitHandler(SUMMIT_CLICK_EVENT);
-
+      // Default returns []
+      clickHandler(SUMMIT_CLICK_EVENT);
       expect(mockPopup.setHTML).not.toHaveBeenCalled();
     });
   });
@@ -613,12 +547,10 @@ describe('AppComponent', () => {
       component.showCoverage = true;
       component.isSummitRegion = false;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const overlay = fixture.nativeElement.querySelector('.overlay');
       expect(overlay).toBeTruthy();
 
-      // Check ring value displays coverage percentage
       const ringValue = overlay.querySelector('.overlay__ring-value');
       expect(ringValue).toBeTruthy();
       expect(ringValue.textContent.trim()).toBe('45');
@@ -630,7 +562,6 @@ describe('AppComponent', () => {
       component.showCoverage = true;
       component.isSummitRegion = false;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const overlay = fixture.nativeElement.querySelector('.overlay');
       const statValues = overlay.querySelectorAll('.overlay__stat-value');
@@ -643,7 +574,6 @@ describe('AppComponent', () => {
       component.showCoverage = false;
       component.isSummitRegion = false;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const overlay = fixture.nativeElement.querySelector('.overlay');
       expect(overlay).toBeFalsy();
@@ -655,12 +585,9 @@ describe('AppComponent', () => {
       component.showCoverage = true;
       component.isSummitRegion = true;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
-      // The overlay IS rendered (summit overlay uses same .overlay class)
       const overlay = fixture.nativeElement.querySelector('.overlay');
       expect(overlay).toBeTruthy();
-      // But coverage stats (rendered by coverage overlay path) should NOT be present
       expect(overlay.querySelector('.overlay__ring-unit')).toBeNull();
     });
   });
@@ -675,17 +602,14 @@ describe('AppComponent', () => {
       component.showCoverage = true;
       component.summitCoverage = MOCK_SUMMIT_COVERAGE;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const overlay = fixture.nativeElement.querySelector('.overlay');
       expect(overlay).toBeTruthy();
 
-      // Should show visited count
       const ringValue = overlay.querySelector('.overlay__ring-value');
       expect(ringValue).toBeTruthy();
       expect(ringValue.textContent.trim()).toBe('20');
 
-      // Should show summit names in the list
       const summitItems = overlay.querySelectorAll('.overlay__summit-item');
       expect(summitItems.length).toBe(2);
       expect(summitItems[0].textContent).toContain('Falknis');
@@ -698,7 +622,6 @@ describe('AppComponent', () => {
       component.showCoverage = true;
       component.summitCoverage = MOCK_SUMMIT_COVERAGE;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const refreshBtn = fixture.nativeElement.querySelector('.refresh-button');
       expect(refreshBtn).toBeTruthy();
@@ -710,7 +633,6 @@ describe('AppComponent', () => {
       component.showCoverage = true;
       component.summitCoverage = null;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const emptyEl = fixture.nativeElement.querySelector('.overlay__empty');
       expect(emptyEl).toBeTruthy();
@@ -726,7 +648,6 @@ describe('AppComponent', () => {
       createComponentOnly();
       component.showRegionDropdown = true;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const groups = fixture.nativeElement.querySelectorAll('.region-selector__group');
       expect(groups.length).toBe(4);
@@ -738,7 +659,6 @@ describe('AppComponent', () => {
       createComponentOnly();
       component.showRegionDropdown = true;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const dropdown = fixture.nativeElement.querySelector('.region-selector__dropdown');
       expect(dropdown).toBeTruthy();
@@ -748,7 +668,6 @@ describe('AppComponent', () => {
       createComponentOnly();
       component.showRegionDropdown = false;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const dropdown = fixture.nativeElement.querySelector('.region-selector__dropdown');
       expect(dropdown).toBeFalsy();
@@ -759,7 +678,6 @@ describe('AppComponent', () => {
       component.showRegionDropdown = true;
       component.selectedRegionValue = 'NETWORK';
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const selectedOption = fixture.nativeElement.querySelector('.region-selector__option.selected');
       expect(selectedOption).toBeTruthy();
@@ -775,7 +693,6 @@ describe('AppComponent', () => {
       createComponentOnly();
       component.isLoading = true;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const indicator = fixture.nativeElement.querySelector('.loading-indicator');
       expect(indicator).toBeTruthy();
@@ -786,7 +703,6 @@ describe('AppComponent', () => {
       createComponentOnly();
       component.isLoading = false;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const indicator = fixture.nativeElement.querySelector('.loading-indicator');
       expect(indicator).toBeFalsy();
@@ -803,7 +719,6 @@ describe('AppComponent', () => {
       component.showCoverage = true;
       component.isSummitRegion = false;
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '1'});
 
       const closeBtn = fixture.nativeElement.querySelector('.close-button');
       expect(closeBtn).toBeTruthy();
@@ -824,12 +739,9 @@ describe('AppComponent', () => {
     });
 
     it('should show n/a on error', () => {
+      mockService.getBackendVersion.and.returnValue(throwError(() => new Error('Server error')));
       createComponentOnly();
       fixture.detectChanges();
-
-      const req = httpMock.expectOne('/api/version');
-      req.flush('Server error', {status: 500, statusText: 'Server Error'});
-
       expect(component.backendVersion).toBe('n/a');
     });
   });
@@ -839,14 +751,13 @@ describe('AppComponent', () => {
   // -----------------------------------------------------------------------
   describe('template – version info', () => {
     it('should display frontend and backend version in footer', () => {
+      mockService.getBackendVersion.and.returnValue(of({backendVersion: '4.5.6'}));
       createComponentOnly();
       component.coverage = MOCK_COVERAGE;
       component.showCoverage = true;
       component.isSummitRegion = false;
       component.frontendVersion = '1.2.3';
-      component.backendVersion = '4.5.6';
       fixture.detectChanges();
-      httpMock.expectOne('/api/version').flush({backendVersion: '4.5.6'});
 
       const footer = fixture.nativeElement.querySelector('.overlay__footer');
       expect(footer).toBeTruthy();

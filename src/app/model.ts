@@ -1,4 +1,4 @@
-export class CoverageDto {
+export interface CoverageDto {
   coverage: number;
   totalTrailLength: number;
   numberOfTracksChecked: number;
@@ -17,7 +17,7 @@ export interface SummitDetail {
   uuid: string;
 }
 
-export class SummitCoverageDto {
+export interface SummitCoverageDto {
   totalSummits: number;
   visitedSummits: number;
   totalVisits: number;
