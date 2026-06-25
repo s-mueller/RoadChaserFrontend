@@ -405,3 +405,81 @@
   font-weight: 500;
   color: #1a1a2e;
 }
+
+/* ─── Mobile (≤ 480px) ───────────────────────────────────────────────── */
+@media (max-width: 480px) {
+
+  /* Wider tap targets in the dropdown */
+  .region-selector__option {
+    padding: 14px 16px;
+    font-size: 15px;
+  }
+
+  /* Dropdown expands to (nearly) full viewport width */
+  .region-selector__dropdown {
+    min-width: min(320px, calc(100vw - 24px));
+    right: auto;
+    max-height: 60vh;
+  }
+
+  /* Loading indicator: shrink to spinner-only so it doesn't overlap selector */
+  .loading-indicator {
+    top: 12px;
+    right: 12px;
+    padding: 10px;
+    gap: 0;
+  }
+
+  .loading-text {
+    display: none;
+  }
+
+  /* Overlay → bottom sheet */
+  @keyframes overlayInMobile {
+    from { opacity: 0; transform: translateY(48px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .overlay {
+    left: 0;
+    right: 0;
+    bottom: 0;
+    max-width: none;
+    border-radius: 18px 18px 0 0;
+    padding: 20px 20px max(20px, env(safe-area-inset-bottom));
+    max-height: 72vh;
+    overflow-y: auto;
+    animation: overlayInMobile 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    /* Drag-handle hint */
+    padding-top: 28px;
+  }
+
+  /* Drag handle */
+  .overlay::before {
+    content: '';
+    position: absolute;
+    top: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 36px;
+    height: 4px;
+    background: rgba(0, 0, 0, 0.15);
+    border-radius: 2px;
+  }
+
+  /* Summit list scrolls as part of the sheet — remove its own scroll container */
+  .overlay__summit-list {
+    max-height: none;
+  }
+
+  /* Slightly larger stat values so they're readable at arm's length */
+  .overlay__stat-value {
+    font-size: 15px;
+  }
+
+  /* Roomier summit rows for touch */
+  .overlay__summit-item {
+    padding: 7px 0;
+    font-size: 13px;
+  }
+}
